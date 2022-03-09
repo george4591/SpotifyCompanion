@@ -10,8 +10,9 @@ namespace SpotifyCompanion
     {
         public static async Task Main(string[] args)
         {
-            SpotifyClient.Initialize();
-         
+            var Spotify = new SpotifyClient();
+            await Spotify.Initialize();
+            Spotify.Run();
         }
     }
 }

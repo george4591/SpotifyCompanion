@@ -1,12 +1,11 @@
-﻿using Nito.AsyncEx;
-using Newtonsoft.Json;
+﻿using Hanssens.Net;
+using Nito.AsyncEx;
 using SpotifyCompanion.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -82,6 +81,31 @@ namespace SpotifyCompanion
                 { "grant_type", "authorization_code" },
                 { "code", code },
                 { "redirect_uri", $"{AppDetails.RedirectUri}" }
+            };
+
+            FormUrlEncodedContent RequestBody = new FormUrlEncodedContent(RequestData);
+
+            using (HttpResponseMessage Response = await SpotifyClient.Client.PostAsync(url, RequestBody))
+            {
+                if (Response.IsSuccessStatusCode)
+                {
+                    AccessTokenModel AccessToken = await Response.Content.ReadAsAsync<AccessTokenModel>();
+
+                    return AccessToken;
+                }
+                else
+                {
+                    throw new HttpRequestException(Response.ReasonPhrase);
+                }
+            }
+        }
+        public static async Task<AccessTokenModel> RefreshToken(string refreshToken)
+        {
+            string url = "https://accounts.spotify.com/api/token";
+            Dictionary<string, string> RequestData = new Dictionary<string, string>
+            {
+                { "grant_type", "refresh_token" },
+                { "refresh_token", refreshToken }
             };
 
             FormUrlEncodedContent RequestBody = new FormUrlEncodedContent(RequestData);

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -114,9 +115,9 @@ namespace SpotifyCompanion
             {
                 if (Response.IsSuccessStatusCode)
                 {
-                    AccessTokenModel AccessToken = await Response.Content.ReadAsAsync<AccessTokenModel>();
+                     _accessTokenModel = await Response.Content.ReadAsAsync<AccessTokenModel>();
 
-                    return AccessToken;
+                    return _accessTokenModel;
                 }
                 else
                 {
@@ -124,5 +125,7 @@ namespace SpotifyCompanion
                 }
             }
         }
+
+       
     }
 }

@@ -12,18 +12,21 @@ namespace SpotifyCompanion
 {
     public class SpotifyClient
     {
-        public static HttpClient Client { get; set; }
+        public static HttpClient Client { get; set; } = new HttpClient();
         private LocalStorage storage = new LocalStorage();
-        public async Task Initialize()
+
+        public SpotifyClient()
         {
-            Client = new HttpClient();
             Client.BaseAddress = new Uri(AppDetails.BaseAdress);
             Client.DefaultRequestHeaders.Accept.Clear();
             Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{AppDetails.ClientId}:{AppDetails.ClientSecret}"));
             Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", credentials);
-
+        }
+        
+        public async Task Initialize()
+        {
             if (!File.Exists(".localstorage"))
             {
                 var LoginInfo = OAuth2.Authorize();
@@ -41,19 +44,25 @@ namespace SpotifyCompanion
             }
             else
             {
-               await RefreshTokenIfNeeded();
+                await RefreshTokenIfNeeded();
             }
+
+            Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", storage.Get<string>("access_token"));
         }
 
         public void Run()
         {
             bool running = true;
-            while(running)
+            while (running) 
             {
-                switch(Console.ReadKey().Key)
+                switch (Console.ReadKey().Key)
                 {
                     case ConsoleKey.Escape:
-                        running = false; break;
+                        running = false; 
+                        break;
+                    case ConsoleKey.F6:
+                        User.GetCurrentUser();
+                        break;
                 }
             }
         }
@@ -85,5 +94,7 @@ namespace SpotifyCompanion
                 Console.WriteLine("The token is not expired yet");
             }
         }
+        
     }
 }
+

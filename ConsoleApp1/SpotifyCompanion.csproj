@@ -86,11 +86,13 @@
   <ItemGroup>
     <Compile Include="AppDetails.cs" />
     <Compile Include="Models\AccessTokenModel.cs" />
+    <Compile Include="Models\UserModel.cs" />
     <Compile Include="OAuth2.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scopes.cs" />
     <Compile Include="SpotifyClient.cs" />
+    <Compile Include="User.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

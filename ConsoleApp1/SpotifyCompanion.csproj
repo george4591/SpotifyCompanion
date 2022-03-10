@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppDetails.cs" />
+    <Compile Include="Artist\Artist.cs" />
     <Compile Include="Models\AccessTokenModel.cs" />
     <Compile Include="Models\PlaylistModel.cs" />
     <Compile Include="Models\PlaylistArrayModel.cs" />

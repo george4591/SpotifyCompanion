@@ -10,6 +10,18 @@ namespace SpotifyCompanion
 {
     public static class Player
     {
+        public static async void GetPlaybackState()
+        {
+
+        }
+        public static async void TransferPlayback()
+        {
+
+        }
+        public static async void GetAvailableDevices()
+        {
+
+        }
         public static async void GetRecentlyPlayedTracks()
         {
             var recentTracks = await HttpRequest.Get<TrackArrayModel>("https://api.spotify.com/v1/me/player/recently-played");
@@ -21,6 +33,51 @@ namespace SpotifyCompanion
         public static async Task<CurrentTrackModel> GetCurrentlyPlayingTrack()
         {
             return await HttpRequest.Get<CurrentTrackModel>("https://api.spotify.com/v1/me/player/currently-playing");
+        }
+
+        public static async void StartResumePlayback()
+        {
+
+        }
+
+        public static async void PausePlayback()
+        {
+
+        }
+
+        public static async void SkipToNext()
+        {
+
+        }
+
+        public static async void SkipToPrevious()
+        {
+
+        }
+
+        public static async void SeekToPosition()
+        {
+
+        }
+
+        public static async void SetRepeatMode()
+        {
+
+        }
+
+        public static async void SetPlaybackVolume()
+        {
+
+        }
+
+        public static async void TogglePlaybackShuffle()
+        {
+
+        }
+
+        public static async void AddItemToPlaybackQueue()
+        {
+
         }
     }
 }

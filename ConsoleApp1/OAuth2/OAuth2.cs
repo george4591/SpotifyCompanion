@@ -20,7 +20,8 @@ namespace SpotifyCompanion
             var Scope = new List<string>
             {
                 Scopes.UserReadEmail, Scopes.UserReadPrivate, Scopes.PlaylistReadPrivate,
-                Scopes.PlaylistReadCollaborative, Scopes.UserReadCurrentlyPlaying, Scopes.UserReadPlaybackState
+                Scopes.PlaylistReadCollaborative, Scopes.UserReadCurrentlyPlaying, Scopes.UserReadPlaybackState,
+                Scopes.UserReadRecentlyPlayed
             };
 
 

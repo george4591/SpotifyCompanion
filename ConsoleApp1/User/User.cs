@@ -13,7 +13,7 @@ namespace SpotifyCompanion
     {
         private static UserModel _userModel;
 
-        public static async Task GetCurrentUser()
+        public static async void GetCurrentUser()
         {
             _userModel = await HttpRequest.Get<UserModel>("https://api.spotify.com/v1/me/");
             Console.WriteLine(_userModel.display_name);

@@ -62,7 +62,7 @@ namespace SpotifyCompanion
                         User.GetCurrentUser();
                         break;
                     case ConsoleKey.F7:
-                        Track.GetCurrentTrack();
+                        Player.GetRecentlyPlayedTracks();
                         break;
                 }
             }

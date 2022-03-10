@@ -13,7 +13,7 @@ namespace SpotifyCompanion
     public class SpotifyClient
     {
         public static HttpClient Client { get; set; } = new HttpClient();
-        private LocalStorage storage = new LocalStorage();
+        private readonly LocalStorage storage = new LocalStorage();
 
         public SpotifyClient()
         {
@@ -39,8 +39,6 @@ namespace SpotifyCompanion
 
                 storage.Persist();
                 Console.WriteLine("Succesfully wrote to .localstorage");
-
-                storage.Clear();
             }
             else
             {
@@ -62,6 +60,9 @@ namespace SpotifyCompanion
                         break;
                     case ConsoleKey.F6:
                         User.GetCurrentUser();
+                        break;
+                    case ConsoleKey.F7:
+                        Track.GetCurrentTrack();
                         break;
                 }
             }
@@ -87,7 +88,6 @@ namespace SpotifyCompanion
                 storage.Store<DateTime>("expires_at", DateTime.Now.Add(TimeSpan.FromSeconds(refreshInfo.expires_in)));
 
                 storage.Persist();
-                storage.Clear();
             }
             else
             {

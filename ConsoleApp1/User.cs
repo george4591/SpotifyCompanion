@@ -1,4 +1,5 @@
 ﻿using SpotifyCompanion.Models;
+using SpotifyCompanion.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,24 +13,10 @@ namespace SpotifyCompanion
     {
         private static UserModel _userModel;
 
-        public static async void GetCurrentUser()
+        public static async Task GetCurrentUser()
         {
-            using (HttpResponseMessage Response = await SpotifyClient.Client.GetAsync(new Uri("https://api.spotify.com/v1/me/")))
-            {
-                if (Response.IsSuccessStatusCode)
-                {
-                    _userModel = await Response.Content.ReadAsAsync<UserModel>();
-
-                    Console.WriteLine(_userModel.display_name);
-                }
-                else
-                {
-                    var error = await Response.Content.ReadAsStringAsync();
-
-                    Console.WriteLine(error);
-                    throw new HttpRequestException(Response.ReasonPhrase);
-                }
-            }
+            _userModel = await HttpRequest.Get<UserModel>("https://api.spotify.com/v1/me/");
+            Console.WriteLine(_userModel.display_name);
         }
     }
 }

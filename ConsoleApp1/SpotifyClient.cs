@@ -14,14 +14,19 @@ namespace SpotifyCompanion
     {
         public static HttpClient Client { get; set; } = new HttpClient();
         private readonly LocalStorage storage = new LocalStorage();
+        private readonly string ClientId;
+        private readonly string ClientSecret;
 
-        public SpotifyClient()
+        public SpotifyClient(string ClientId, string ClientSecret)
         {
+            this.ClientId = ClientId;
+            this.ClientSecret = ClientSecret;
+
             Client.BaseAddress = new Uri(AppDetails.BaseAdress);
             Client.DefaultRequestHeaders.Accept.Clear();
             Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{AppDetails.ClientId}:{AppDetails.ClientSecret}"));
+            string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{ClientId}:{ClientSecret}"));
             Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", credentials);
         }
         
@@ -29,7 +34,7 @@ namespace SpotifyCompanion
         {
             if (!File.Exists(".localstorage"))
             {
-                var LoginInfo = OAuth2.Authorize();
+                var LoginInfo = OAuth2.Authorize(ClientId, ClientSecret);
                 Console.WriteLine(LoginInfo.access_token);
 
                 storage.Store<string>("access_token", LoginInfo.access_token);
@@ -59,7 +64,7 @@ namespace SpotifyCompanion
                         running = false; 
                         break;
                     case ConsoleKey.F6:
-                        User.GetCurrentUser();
+                        User.FollowPlaylist("7wJufnewhs4Ue8MpeJ7hIe");
                         break;
                     case ConsoleKey.F7:
                         Player.GetRecentlyPlayedTracks();

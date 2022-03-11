@@ -1,5 +1,5 @@
 ﻿using SpotifyCompanion.Models;
-using SpotifyCompanion.Utils;
+using SpotifyCompanion.Utils.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +24,7 @@ namespace SpotifyCompanion
         }
         public static async void GetRecentlyPlayedTracks()
         {
-            var recentTracks = await HttpRequest.Get<TrackArrayModel>("https://api.spotify.com/v1/me/player/recently-played");
+            var recentTracks = await SpotifyHttpRequest.Get<TrackArrayModel>("https://api.spotify.com/v1/me/player/recently-played");
             foreach (var item in recentTracks.items)
             {
                 Console.WriteLine(item.track.name);
@@ -32,7 +32,7 @@ namespace SpotifyCompanion
         }
         public static async Task<CurrentTrackModel> GetCurrentlyPlayingTrack()
         {
-            return await HttpRequest.Get<CurrentTrackModel>("https://api.spotify.com/v1/me/player/currently-playing");
+            return await SpotifyHttpRequest.Get<CurrentTrackModel>("https://api.spotify.com/v1/me/player/currently-playing");
         }
 
         public static async void StartResumePlayback()

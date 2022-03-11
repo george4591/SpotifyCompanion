@@ -102,7 +102,7 @@
     <Compile Include="SpotifyClient.cs" />
     <Compile Include="Track\Track.cs" />
     <Compile Include="User\User.cs" />
-    <Compile Include="Utils\HttpRequest.cs" />
+    <Compile Include="Utils\SpotifyHttpRequest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

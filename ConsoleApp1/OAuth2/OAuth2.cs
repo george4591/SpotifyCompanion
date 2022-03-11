@@ -1,6 +1,7 @@
 ﻿using Hanssens.Net;
 using Nito.AsyncEx;
 using SpotifyCompanion.Models;
+using SpotifyCompanion.Utils.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,13 +16,14 @@ namespace SpotifyCompanion
     public static class OAuth2
     {
         private static AccessTokenModel _accessTokenModel;
-        public static AccessTokenModel Authorize()
+        public static AccessTokenModel Authorize(string ClientId, string ClientSecret)
         {
             var Scope = new List<string>
             {
                 Scopes.UserReadEmail, Scopes.UserReadPrivate, Scopes.PlaylistReadPrivate,
                 Scopes.PlaylistReadCollaborative, Scopes.UserReadCurrentlyPlaying, Scopes.UserReadPlaybackState,
-                Scopes.UserReadRecentlyPlayed
+                Scopes.UserReadRecentlyPlayed, Scopes.UserFollowModify, Scopes.PlaylistModifyPrivate, Scopes.PlaylistModifyPublic
+
             };
 
 
@@ -32,7 +34,7 @@ namespace SpotifyCompanion
             Dictionary<string, string> RequestData = new Dictionary<string, string>
             {
                 { "response_type", "code" },
-                { "client_id", AppDetails.ClientId },
+                { "client_id", ClientId },
                 { "scope", string.Join(" ", Scope) },
                 { "redirect_uri", AppDetails.RedirectUri }
             };
@@ -87,19 +89,7 @@ namespace SpotifyCompanion
 
             FormUrlEncodedContent RequestBody = new FormUrlEncodedContent(RequestData);
 
-            using (HttpResponseMessage Response = await SpotifyClient.Client.PostAsync(url, RequestBody))
-            {
-                if (Response.IsSuccessStatusCode)
-                {
-                    AccessTokenModel AccessToken = await Response.Content.ReadAsAsync<AccessTokenModel>();
-
-                    return AccessToken;
-                }
-                else
-                {
-                    throw new HttpRequestException(Response.ReasonPhrase);
-                }
-            }
+            return await SpotifyHttpRequest.Post<AccessTokenModel>(url, RequestBody);
         }
         public static async Task<AccessTokenModel> RefreshToken(string refreshToken)
         {
@@ -112,19 +102,7 @@ namespace SpotifyCompanion
 
             FormUrlEncodedContent RequestBody = new FormUrlEncodedContent(RequestData);
 
-            using (HttpResponseMessage Response = await SpotifyClient.Client.PostAsync(url, RequestBody))
-            {
-                if (Response.IsSuccessStatusCode)
-                {
-                     _accessTokenModel = await Response.Content.ReadAsAsync<AccessTokenModel>();
-
-                    return _accessTokenModel;
-                }
-                else
-                {
-                    throw new HttpRequestException(Response.ReasonPhrase);
-                }
-            }
+            return await SpotifyHttpRequest.Post<AccessTokenModel>(url, RequestBody);
         }
 
        

@@ -1,5 +1,5 @@
 ﻿using SpotifyCompanion.Models;
-using SpotifyCompanion.Utils;
+using SpotifyCompanion.Utils.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,7 +42,7 @@ namespace SpotifyCompanion
         }
         public static async void GetCurrentUserPlaylists()
         {
-            var playlists = await HttpRequest.Get<PlaylistArrayModel>("https://api.spotify.com/v1/me/playlists");
+            var playlists = await SpotifyHttpRequest.Get<PlaylistArrayModel>("https://api.spotify.com/v1/me/playlists");
 
             foreach(var playlist in playlists.items)
             {

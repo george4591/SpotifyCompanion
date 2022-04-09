@@ -17,16 +17,16 @@ namespace SpotifyCompanion
         private readonly string ClientId;
         private readonly string ClientSecret;
 
-        public SpotifyClient(string ClientId, string ClientSecret)
+        public SpotifyClient(string clientId, string clientSecret)
         {
-            this.ClientId = ClientId;
-            this.ClientSecret = ClientSecret;
+            ClientId = clientId;
+            ClientSecret = clientSecret;
 
             Client.BaseAddress = new Uri(AppDetails.BaseAdress);
             Client.DefaultRequestHeaders.Accept.Clear();
             Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{ClientId}:{ClientSecret}"));
+            string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{clientId}:{clientSecret}"));
             Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", credentials);
         }
         
@@ -55,13 +55,13 @@ namespace SpotifyCompanion
 
         public void Run()
         {
-            bool running = true;
-            while (running) 
+            bool appIsRunning = true;
+            while (appIsRunning) 
             {
                 switch (Console.ReadKey().Key)
                 {
                     case ConsoleKey.Escape:
-                        running = false; 
+                        appIsRunning = false; 
                         break;
                     case ConsoleKey.F6:
                         User.FollowPlaylist("7wJufnewhs4Ue8MpeJ7hIe");
@@ -73,6 +73,24 @@ namespace SpotifyCompanion
             }
         }
 
+        private void RefreshToken()
+        {
+            Console.WriteLine("The token is expired. Requesting new token...");
+
+            var refrToken = storage.Get<string>("refresh_token");
+            var refreshInfo = await OAuth2.RefreshToken(refrToken);
+            Console.WriteLine($"\nThe new token is: {refreshInfo.access_token}");
+
+            WriteTokenToFile(refreshInfo.access_token);
+        }
+
+        private void WriteTokenToFile(string accessToken)
+        {
+            storage.Store("access_token", accessToken);
+            storage.Store<DateTime>("expires_at", DateTime.Now.Add(TimeSpan.FromSeconds(3600)));
+            storage.Persist();
+        }
+
         private async Task RefreshTokenIfNeeded()
         {
             var timeWhenTokenExpires = storage.Get<DateTime>("expires_at");
@@ -80,19 +98,7 @@ namespace SpotifyCompanion
 
             if (DateTime.Compare(DateTime.Now, timeWhenTokenExpires) > 0)
             {
-                Console.WriteLine("The token is expired. Requesting new token...");
-
-                var oldToken = storage.Get<string>("access_token");
-                Console.WriteLine($"The old token is: {oldToken}");
-
-                var refrToken = storage.Get<string>("refresh_token");
-                var refreshInfo = await OAuth2.RefreshToken(refrToken);
-                Console.WriteLine($"\nThe new token is: {refreshInfo.access_token}");
-
-                storage.Store("access_token", refreshInfo.access_token);
-                storage.Store<DateTime>("expires_at", DateTime.Now.Add(TimeSpan.FromSeconds(refreshInfo.expires_in)));
-
-                storage.Persist();
+                RefreshToken();
             }
             else
             {

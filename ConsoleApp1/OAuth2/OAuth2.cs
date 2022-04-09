@@ -62,9 +62,7 @@ namespace SpotifyCompanion
                 {
                     if (!string.IsNullOrEmpty(query["code"]))
                     {
-
                         _accessTokenModel = await GetToken(query["code"]);
-
                         break;
                     }
                     else if (!string.IsNullOrEmpty(query["error"]))

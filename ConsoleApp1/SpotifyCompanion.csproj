@@ -87,6 +87,7 @@
     <Compile Include="AppDetails.cs" />
     <Compile Include="Artist\Artist.cs" />
     <Compile Include="Models\AccessTokenModel.cs" />
+    <Compile Include="Models\PlaybackStateModel.cs" />
     <Compile Include="Models\PlaylistModel.cs" />
     <Compile Include="Models\PlaylistArrayModel.cs" />
     <Compile Include="Models\TrackArrayModel.cs" />
@@ -102,7 +103,7 @@
     <Compile Include="SpotifyClient.cs" />
     <Compile Include="Track\Track.cs" />
     <Compile Include="User\User.cs" />
-    <Compile Include="Utils\SpotifyHttpRequest.cs" />
+    <Compile Include="Utils\HttpRequest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

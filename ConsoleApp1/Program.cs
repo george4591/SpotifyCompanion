@@ -12,7 +12,7 @@ namespace SpotifyCompanion
         {
             var Spotify = new SpotifyClient("1d6a111ca15a48a5a5b1f0364147756f", "4c72324c6ce8489ba4f61605b0b0f240");
             await Spotify.Initialize();
-            Spotify.Run();
+            await Spotify.Run();
         }
     }
 }

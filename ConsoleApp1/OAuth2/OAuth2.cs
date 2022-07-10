@@ -1,15 +1,13 @@
 ﻿using Hanssens.Net;
 using Nito.AsyncEx;
 using SpotifyCompanion.Models;
-using SpotifyCompanion.Utils.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using System.Web;
+using SpotifyCompanion.Utils.Http;
 
 namespace SpotifyCompanion
 {
@@ -22,16 +20,17 @@ namespace SpotifyCompanion
             {
                 Scopes.UserReadEmail, Scopes.UserReadPrivate, Scopes.PlaylistReadPrivate,
                 Scopes.PlaylistReadCollaborative, Scopes.UserReadCurrentlyPlaying, Scopes.UserReadPlaybackState,
-                Scopes.UserReadRecentlyPlayed, Scopes.UserFollowModify, Scopes.PlaylistModifyPrivate, Scopes.PlaylistModifyPublic
+                Scopes.UserReadRecentlyPlayed, Scopes.UserFollowModify, Scopes.PlaylistModifyPrivate, Scopes.PlaylistModifyPublic,
+                Scopes.UserModifyPlaybackState
 
             };
 
 
-            HttpListener Listener = new HttpListener();
+            var Listener = new HttpListener();
             Listener.Prefixes.Add(AppDetails.RedirectUri);
             Listener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
 
-            Dictionary<string, string> RequestData = new Dictionary<string, string>
+            var RequestData = new Dictionary<string, string>
             {
                 { "response_type", "code" },
                 { "client_id", ClientId },
@@ -39,7 +38,7 @@ namespace SpotifyCompanion
                 { "redirect_uri", AppDetails.RedirectUri }
             };
 
-            var queryString = string.Join("&", RequestData.Select(KeyValPair => $"{KeyValPair.Key}={HttpUtility.UrlEncode(KeyValPair.Value)}"));
+            var queryString = string.Join("&", RequestData.Select(KeyValPair => $"{KeyValPair.Key}={System.Web.HttpUtility.UrlEncode(KeyValPair.Value)}"));
             string Url = $"https://accounts.spotify.com/authorize?{queryString}";
 
             System.Diagnostics.Process.Start(Url);
@@ -55,7 +54,7 @@ namespace SpotifyCompanion
         {
             while (true)
             {
-                var context = await Listener.GetContextAsync();
+                HttpListenerContext context = await Listener.GetContextAsync();
                 var query = context.Request.QueryString;
 
                 if (query != null && query.Count > 0)
@@ -67,7 +66,7 @@ namespace SpotifyCompanion
                     }
                     else if (!string.IsNullOrEmpty(query["error"]))
                     {
-                        var _errorResult = string.Format("{0}: {1}", query["error"], query["error_description"]);
+                        string _errorResult = string.Format("{0}: {1}", query["error"], query["error_description"]);
                         Console.WriteLine(_errorResult);
                         throw new HttpRequestException(_errorResult);
                     }
@@ -78,16 +77,16 @@ namespace SpotifyCompanion
         private static async Task<AccessTokenModel> GetToken(string code)
         {
             string url = "https://accounts.spotify.com/api/token";
-            Dictionary<string, string> RequestData = new Dictionary<string, string>
+            var RequestData = new Dictionary<string, string>
             {
                 { "grant_type", "authorization_code" },
                 { "code", code },
                 { "redirect_uri", $"{AppDetails.RedirectUri}" }
             };
 
-            FormUrlEncodedContent RequestBody = new FormUrlEncodedContent(RequestData);
+            var RequestBody = new FormUrlEncodedContent(RequestData);
 
-            return await SpotifyHttpRequest.Post<AccessTokenModel>(url, RequestBody);
+            return await HttpRequest.Post<AccessTokenModel>(url, RequestBody);
         }
         public static async Task<AccessTokenModel> RefreshToken(string refreshToken)
         {
@@ -98,9 +97,9 @@ namespace SpotifyCompanion
                 { "refresh_token", refreshToken }
             };
 
-            FormUrlEncodedContent RequestBody = new FormUrlEncodedContent(RequestData);
+            var RequestBody = new FormUrlEncodedContent(RequestData);
 
-            return await SpotifyHttpRequest.Post<AccessTokenModel>(url, RequestBody);
+            return await HttpRequest.Post<AccessTokenModel>(url, RequestBody);
         }
 
        

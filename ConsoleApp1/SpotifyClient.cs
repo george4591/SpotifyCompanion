@@ -29,13 +29,12 @@ namespace SpotifyCompanion
             string credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{clientId}:{clientSecret}"));
             Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", credentials);
         }
-        
+
         public async Task Initialize()
         {
             if (!File.Exists(".localstorage"))
             {
                 var LoginInfo = OAuth2.Authorize(ClientId, ClientSecret);
-                Console.WriteLine(LoginInfo.access_token);
 
                 storage.Store<string>("access_token", LoginInfo.access_token);
                 storage.Store<string>("token_type", LoginInfo.token_type);
@@ -43,7 +42,7 @@ namespace SpotifyCompanion
                 storage.Store<DateTime>("expires_at", DateTime.Now.Add(TimeSpan.FromSeconds(LoginInfo.expires_in)));
 
                 storage.Persist();
-                Console.WriteLine("Succesfully wrote to .localstorage");
+                Console.WriteLine("You are now logged in!");
             }
             else
             {
@@ -53,38 +52,42 @@ namespace SpotifyCompanion
             Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", storage.Get<string>("access_token"));
         }
 
-        public void Run()
+        public async Task Run()
         {
             bool appIsRunning = true;
-            while (appIsRunning) 
+            while (appIsRunning)
             {
                 switch (Console.ReadKey().Key)
                 {
                     case ConsoleKey.Escape:
-                        appIsRunning = false; 
+                        appIsRunning = false;
+                        break;
+                    case ConsoleKey.F3:
+                        Player.AddItemToPlaybackQueue("spotify:track:4iV5W9uYEdYUVa79Axb7Rh");
                         break;
                     case ConsoleKey.F6:
                         User.FollowPlaylist("7wJufnewhs4Ue8MpeJ7hIe");
                         break;
                     case ConsoleKey.F7:
-                        Player.GetRecentlyPlayedTracks();
+                        var currrentSong = await Player.GetCurrentlyPlayingTrack();
+                        Console.WriteLine(currrentSong.item.name);
                         break;
                 }
             }
         }
 
-        private void RefreshToken()
+        private async void RefreshToken()
         {
-            Console.WriteLine("The token is expired. Requesting new token...");
+            Console.WriteLine("The token is expired. Refreshing...");
 
             var refrToken = storage.Get<string>("refresh_token");
             var refreshInfo = await OAuth2.RefreshToken(refrToken);
-            Console.WriteLine($"\nThe new token is: {refreshInfo.access_token}");
+            Console.WriteLine($"\nToken Refreshed!");
 
-            WriteTokenToFile(refreshInfo.access_token);
+            StoreToken(refreshInfo.access_token);
         }
 
-        private void WriteTokenToFile(string accessToken)
+        private void StoreToken(string accessToken)
         {
             storage.Store("access_token", accessToken);
             storage.Store<DateTime>("expires_at", DateTime.Now.Add(TimeSpan.FromSeconds(3600)));
@@ -94,7 +97,6 @@ namespace SpotifyCompanion
         private async Task RefreshTokenIfNeeded()
         {
             var timeWhenTokenExpires = storage.Get<DateTime>("expires_at");
-            Console.WriteLine($"Time when current token expires: {timeWhenTokenExpires}");
 
             if (DateTime.Compare(DateTime.Now, timeWhenTokenExpires) > 0)
             {
@@ -102,10 +104,10 @@ namespace SpotifyCompanion
             }
             else
             {
-                Console.WriteLine("The token is not expired yet");
+                Console.WriteLine($"The current token will expire on: {timeWhenTokenExpires}");
             }
         }
-        
+
     }
 }
 

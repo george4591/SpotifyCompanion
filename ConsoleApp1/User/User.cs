@@ -14,7 +14,7 @@ namespace SpotifyCompanion
     {
         public static async void GetCurrentUser()
         {
-            var currentUser = await SpotifyHttpRequest.Get<UserModel>("https://api.spotify.com/v1/me/");
+            var currentUser = await HttpRequest.Get<UserModel>("https://api.spotify.com/v1/me/");
             Console.WriteLine(currentUser.id);
         }
         public static async void GetUserTopItems()
@@ -23,18 +23,18 @@ namespace SpotifyCompanion
         }
         public static async void GetUser(string UserId)
         {
-            var user = await SpotifyHttpRequest.Get<UserModel>($"https://api.spotify.com/v1/users/{UserId}");
+            var user = await HttpRequest.Get<UserModel>($"https://api.spotify.com/v1/users/{UserId}");
             Console.WriteLine(user.display_name);
         }
         public static async void FollowPlaylist(string PlaylistId)
         {
             var endpoint = $"https://api.spotify.com/v1/playlists/{PlaylistId}/followers";
-            await SpotifyHttpRequest.Put(endpoint, new StringContent("public: true"));
+            await HttpRequest.Put(endpoint, new StringContent("public: true"));
         }
         public static async void UnfollowPlaylist(string PlaylistId)
         {
             var endpoint = $"https://api.spotify.com/v1/playlists/{PlaylistId}/followers";
-            await SpotifyHttpRequest.Delete(endpoint);
+            await HttpRequest.Delete(endpoint);
         }
         public static async void GetFollowedArtists()
         {
@@ -46,7 +46,7 @@ namespace SpotifyCompanion
             var serializedIds = JsonConvert.SerializeObject(ids);
             var RequestBody = new StringContent(serializedIds);
 
-            await SpotifyHttpRequest.Put(endpoint, RequestBody);
+            await HttpRequest.Put(endpoint, RequestBody);
         }
         public static async void Unfollow(List<string> ids, string type = "user")
         {
@@ -54,7 +54,7 @@ namespace SpotifyCompanion
             var serializedIds = JsonConvert.SerializeObject(ids);
             var RequestBody = new StringContent(serializedIds);
 
-            await SpotifyHttpRequest.Delete(endpoint, RequestBody);
+            await HttpRequest.Delete(endpoint, RequestBody);
         }
         //public static async Task<List<bool>> IsFollowingUser(List<string> ids, string type = "user")
         //{

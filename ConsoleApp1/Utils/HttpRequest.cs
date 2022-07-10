@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SpotifyCompanion.Utils.Http
 {
-    public static class SpotifyHttpRequest
+    public static class HttpRequest
     {
         public static async Task<T> Get<T>(string endpoint)
         {
@@ -15,6 +15,14 @@ namespace SpotifyCompanion.Utils.Http
             {
                 EnsureSuccessfulRequest(Response);
                 return await Response.Content.ReadAsAsync<T>();
+            }
+        }
+
+        public static async void Post(string endpoint)
+        {
+            using (HttpResponseMessage Response = await SpotifyClient.Client.PostAsync(endpoint, new StringContent(string.Empty)))
+            {
+                EnsureSuccessfulRequest(Response);
             }
         }
 
@@ -30,6 +38,14 @@ namespace SpotifyCompanion.Utils.Http
         public static async Task Put(string endpoint, StringContent RequestBody)
         {
             using (HttpResponseMessage Response = await SpotifyClient.Client.PutAsync(endpoint, RequestBody))
+            {
+                EnsureSuccessfulRequest(Response);
+            }
+        }
+
+        public static async Task Put(string endpoint)
+        {
+            using (HttpResponseMessage Response = await SpotifyClient.Client.PutAsync(endpoint, new StringContent(string.Empty)))
             {
                 EnsureSuccessfulRequest(Response);
             }
@@ -61,8 +77,7 @@ namespace SpotifyCompanion.Utils.Http
         {
             if (!Response.IsSuccessStatusCode)
             {
-                Console.WriteLine("The Request was not succesful!");
-                throw new HttpRequestException(Response.ReasonPhrase);
+                Console.WriteLine($"Error {(int)Response.StatusCode} - {Response.ReasonPhrase}");
             }
         }
     }

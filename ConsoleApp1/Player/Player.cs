@@ -10,9 +10,11 @@ namespace SpotifyCompanion
 {
     public static class Player
     {
-        public static async void GetPlaybackState()
+        static readonly string MainEndpoint = "https://api.spotify.com/v1/me/player";
+        static readonly List<string> RepeatModes = new List<string> { "off", "track", "context" };
+        private static async Task<PlaybackStateModel> GetPlaybackState()
         {
-
+            return await HttpRequest.Get<PlaybackStateModel>($"{MainEndpoint}");
         }
         public static async void TransferPlayback()
         {
@@ -24,7 +26,7 @@ namespace SpotifyCompanion
         }
         public static async void GetRecentlyPlayedTracks()
         {
-            var recentTracks = await SpotifyHttpRequest.Get<TrackArrayModel>("https://api.spotify.com/v1/me/player/recently-played");
+            var recentTracks = await HttpRequest.Get<TrackArrayModel>($"{MainEndpoint}/recently-played");
             foreach (var item in recentTracks.items)
             {
                 Console.WriteLine(item.track.name);
@@ -32,52 +34,70 @@ namespace SpotifyCompanion
         }
         public static async Task<CurrentTrackModel> GetCurrentlyPlayingTrack()
         {
-            return await SpotifyHttpRequest.Get<CurrentTrackModel>("https://api.spotify.com/v1/me/player/currently-playing");
+            return await HttpRequest.Get<CurrentTrackModel>($"{MainEndpoint}/currently-playing");
         }
 
-        public static async void StartResumePlayback()
+        private static async void PlayPlayback()
         {
-
+            await HttpRequest.Put($"{MainEndpoint}/play");
         }
-
-        public static async void PausePlayback()
+        private static async void PausePlayback()
         {
-
+            await HttpRequest.Put($"{MainEndpoint}/pause");
         }
 
+        public static async void PauseStartPlayback()
+        {
+            var state = await GetPlaybackState();
+            if (state.is_playing) PausePlayback();
+            else PlayPlayback();
+        }
         public static async void SkipToNext()
         {
-
+            HttpRequest.Post($"{MainEndpoint}/next");
         }
 
         public static async void SkipToPrevious()
         {
-
+            HttpRequest.Post($"{MainEndpoint}/previous");
         }
 
+        //FIXME magic number
         public static async void SeekToPosition()
         {
-
+            await HttpRequest.Put($"{MainEndpoint}/seek?position_ms={2500}");
         }
 
         public static async void SetRepeatMode()
         {
+            var PlaybackState = await GetPlaybackState();
+            var IndexOfCurrentMode = RepeatModes.IndexOf(PlaybackState.repeat_state);
 
+            string RepeatMode = RepeatModes[(IndexOfCurrentMode + 1) % RepeatModes.Count];
+
+            await HttpRequest.Put($"{MainEndpoint}/repeat?state={RepeatMode}");
         }
 
+        //FIXME magic number
         public static async void SetPlaybackVolume()
         {
-
+            await HttpRequest.Put($"{MainEndpoint}/volume?volume_percent={50}");
         }
 
         public static async void TogglePlaybackShuffle()
         {
+            var PlaybackState = await GetPlaybackState();
 
+            //in playback state the shuffle is stored as a string but we need to pass a boolean here for some reason
+            var ShuffleMode = PlaybackState.shuffle_state;
+            bool NewMode = !(ShuffleMode == "true");
+
+            await HttpRequest.Put($"{MainEndpoint}/shuffle?state={NewMode}");
         }
 
-        public static async void AddItemToPlaybackQueue()
+        public static void AddItemToPlaybackQueue(string ItemUri)
         {
-
+            HttpRequest.Post($"{MainEndpoint}/queue?uri={ItemUri}");
         }
     }
 }

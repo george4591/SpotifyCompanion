@@ -87,6 +87,7 @@
     <Compile Include="AppDetails.cs" />
     <Compile Include="Artist\Artist.cs" />
     <Compile Include="Models\AccessTokenModel.cs" />
+    <Compile Include="Models\AudioFeatures.cs" />
     <Compile Include="Models\PlaybackStateModel.cs" />
     <Compile Include="Models\PlaylistModel.cs" />
     <Compile Include="Models\PlaylistArrayModel.cs" />

@@ -23,7 +23,6 @@ namespace SpotifyCompanion
                 Scopes.PlaylistReadCollaborative, Scopes.UserReadCurrentlyPlaying, Scopes.UserReadPlaybackState,
                 Scopes.UserReadRecentlyPlayed, Scopes.UserFollowModify, Scopes.PlaylistModifyPrivate, Scopes.PlaylistModifyPublic,
                 Scopes.UserModifyPlaybackState
-
             };
 
             var listener = new HttpListener();

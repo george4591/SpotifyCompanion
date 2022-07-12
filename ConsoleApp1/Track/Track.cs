@@ -1,5 +1,6 @@
 ﻿using SpotifyCompanion.Models;
 using SpotifyCompanion.Utils;
+using SpotifyCompanion.Utils.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,36 +10,40 @@ using System.Threading.Tasks;
 
 namespace SpotifyCompanion
 {
-    public class Track
+    public static class Track
     {
-        private static CurrentTrackModel _trackModel;
-        public static async void GetTrack()
+        private static readonly string _entrypoint = "https://api.spotify.com/v1/tracks";
+        public static async Task<TrackModel> GetTrack(string id)
         {
-
+            return await HttpRequest.Get<TrackModel>($"{_entrypoint}/{id}");
         }
-        public static async void GetSeveralTracks()
+        public static async Task<TrackModel[]> GetTracks(string[] ids)
         {
-
+            return await HttpRequest.Get<TrackModel[]>($"{_entrypoint}?ids={string.Join(",", ids)}");
         }
-        public static async void GetUserSavedTracks()
+        public static async Task<TrackModel[]> GetUserSavedTracks(int offset, int limit)
         {
-
+            return await HttpRequest.Get<TrackModel[]>($"{_entrypoint}/me/tracks?offset={offset}&limit={limit}");
         }
-        public static async void SaveTrack()
+        public static async Task SaveTrack(string[] ids)
         {
-
+            await HttpRequest.Put($"{_entrypoint}/me/tracks?ids={string.Join(",", ids)}");
         }
-        public static async void UnsaveTrack()
+        public static async Task UnsaveTrack(string[] ids)
         {
-
+            await HttpRequest.Delete($"{_entrypoint}/me/tracks?ids={string.Join(",", ids)}");
         }
-        public static async void IsTrackSaved()
+        public static async Task<bool[]> IsTrackSaved(string[] ids)
         {
-
+            return await HttpRequest.Get<bool[]>($"{_entrypoint}/me/tracks/contains?ids={string.Join(",", ids)}");
         }
-        public static async void GetAudioFeatures()
+        public static async Task<AudioFeatures> GetAudioFeatures(string id)
         {
-
+            return await HttpRequest.Get<AudioFeatures>($"{_entrypoint}/audio-features?id={id}");
+        }
+        public static async Task<AudioFeatures[]> GetAudioFeatures(string[] ids)
+        {
+            return await HttpRequest.Get<AudioFeatures[]>($"{_entrypoint}/audio-features?ids={string.Join(",", ids)}");
         }
         public static async void GetAudioAnalysis()
         {

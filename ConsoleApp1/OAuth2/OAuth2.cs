@@ -13,10 +13,11 @@ namespace SpotifyCompanion
 {
     public static class OAuth2
     {
+        private static readonly string _entrypoint = "https://accounts.spotify.com";
         private static AccessTokenModel _accessTokenModel;
-        public static AccessTokenModel Authorize(string ClientId, string ClientSecret)
+        public static AccessTokenModel Authorize(string clientId, string clientSecret)
         {
-            var Scope = new List<string>
+            var scopes = new List<string>
             {
                 Scopes.UserReadEmail, Scopes.UserReadPrivate, Scopes.PlaylistReadPrivate,
                 Scopes.PlaylistReadCollaborative, Scopes.UserReadCurrentlyPlaying, Scopes.UserReadPlaybackState,
@@ -25,36 +26,36 @@ namespace SpotifyCompanion
 
             };
 
+            var listener = new HttpListener();
+            listener.Prefixes.Add(AppDetails.RedirectUri);
+            listener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
 
-            var Listener = new HttpListener();
-            Listener.Prefixes.Add(AppDetails.RedirectUri);
-            Listener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
-
-            var RequestData = new Dictionary<string, string>
+            var requestData = new Dictionary<string, string>
             {
                 { "response_type", "code" },
-                { "client_id", ClientId },
-                { "scope", string.Join(" ", Scope) },
+                { "client_id", clientId },
+                { "scope", string.Join(" ", scopes) },
                 { "redirect_uri", AppDetails.RedirectUri }
             };
 
-            var queryString = string.Join("&", RequestData.Select(KeyValPair => $"{KeyValPair.Key}={System.Web.HttpUtility.UrlEncode(KeyValPair.Value)}"));
-            string Url = $"https://accounts.spotify.com/authorize?{queryString}";
+            Func<KeyValuePair<string, string>, string> concatenatePair = pair => $"{pair.Key}={System.Web.HttpUtility.UrlEncode(pair.Value)}";
+            var queryString = string.Join("&", requestData.Select(pair => concatenatePair(pair)));
+            var url = $"{_entrypoint}/authorize?{queryString}";
 
-            System.Diagnostics.Process.Start(Url);
+            System.Diagnostics.Process.Start(url);
 
-            Listener.Start();
-            AsyncContext.Run(() => ListenLoop(Listener));
-            Listener.Stop();
+            listener.Start();
+            AsyncContext.Run(() => ListenLoop(listener));
+            listener.Stop();
 
             return _accessTokenModel;
         }
 
-        private static async Task ListenLoop(HttpListener Listener)
+        private static async Task ListenLoop(HttpListener listener)
         {
             while (true)
             {
-                HttpListenerContext context = await Listener.GetContextAsync();
+                HttpListenerContext context = await listener.GetContextAsync();
                 var query = context.Request.QueryString;
 
                 if (query != null && query.Count > 0)
@@ -66,9 +67,9 @@ namespace SpotifyCompanion
                     }
                     else if (!string.IsNullOrEmpty(query["error"]))
                     {
-                        string _errorResult = string.Format("{0}: {1}", query["error"], query["error_description"]);
-                        Console.WriteLine(_errorResult);
-                        throw new HttpRequestException(_errorResult);
+                        string errorResult = string.Format("{0}: {1}", query["error"], query["error_description"]);
+                        Console.WriteLine(errorResult);
+                        throw new HttpRequestException(errorResult);
                     }
                 }
             }
@@ -76,32 +77,32 @@ namespace SpotifyCompanion
 
         private static async Task<AccessTokenModel> GetToken(string code)
         {
-            string url = "https://accounts.spotify.com/api/token";
-            var RequestData = new Dictionary<string, string>
+            var url = $"{_entrypoint}/api/token";
+            var requestData = new Dictionary<string, string>
             {
                 { "grant_type", "authorization_code" },
                 { "code", code },
                 { "redirect_uri", $"{AppDetails.RedirectUri}" }
             };
 
-            var RequestBody = new FormUrlEncodedContent(RequestData);
+            var requestBody = new FormUrlEncodedContent(requestData);
 
-            return await HttpRequest.Post<AccessTokenModel>(url, RequestBody);
+            return await HttpRequest.Post<AccessTokenModel>(url, requestBody);
         }
         public static async Task<AccessTokenModel> RefreshToken(string refreshToken)
         {
-            string url = "https://accounts.spotify.com/api/token";
-            Dictionary<string, string> RequestData = new Dictionary<string, string>
+            var url = $"{_entrypoint}/api/token";
+            var requestData = new Dictionary<string, string>
             {
                 { "grant_type", "refresh_token" },
                 { "refresh_token", refreshToken }
             };
 
-            var RequestBody = new FormUrlEncodedContent(RequestData);
+            var requestBody = new FormUrlEncodedContent(requestData);
 
-            return await HttpRequest.Post<AccessTokenModel>(url, RequestBody);
+            return await HttpRequest.Post<AccessTokenModel>(url, requestBody);
         }
 
-       
+
     }
 }

@@ -13,14 +13,14 @@ namespace SpotifyCompanion
     public class SpotifyClient
     {
         public static HttpClient Client { get; set; } = new HttpClient();
-        private readonly LocalStorage storage = new LocalStorage();
-        private readonly string ClientId;
-        private readonly string ClientSecret;
+        private readonly LocalStorage _storage = new LocalStorage();
+        private readonly string _clientId;
+        private readonly string _clientSecret;
 
         public SpotifyClient(string clientId, string clientSecret)
         {
-            ClientId = clientId;
-            ClientSecret = clientSecret;
+            _clientId = clientId;
+            _clientSecret = clientSecret;
 
             Client.BaseAddress = new Uri(AppDetails.BaseAdress);
             Client.DefaultRequestHeaders.Accept.Clear();
@@ -34,14 +34,14 @@ namespace SpotifyCompanion
         {
             if (!File.Exists(".localstorage"))
             {
-                var LoginInfo = OAuth2.Authorize(ClientId, ClientSecret);
+                var loginInfo = OAuth2.Authorize(_clientId, _clientSecret);
 
-                storage.Store<string>("access_token", LoginInfo.access_token);
-                storage.Store<string>("token_type", LoginInfo.token_type);
-                storage.Store<string>("refresh_token", LoginInfo.refresh_token);
-                storage.Store<DateTime>("expires_at", DateTime.Now.Add(TimeSpan.FromSeconds(LoginInfo.expires_in)));
+                _storage.Store<string>("access_token", loginInfo.access_token);
+                _storage.Store<string>("token_type", loginInfo.token_type);
+                _storage.Store<string>("refresh_token", loginInfo.refresh_token);
+                _storage.Store<DateTime>("expires_at", DateTime.Now.Add(TimeSpan.FromSeconds(loginInfo.expires_in)));
 
-                storage.Persist();
+                _storage.Persist();
                 Console.WriteLine("You are now logged in!");
             }
             else
@@ -49,18 +49,18 @@ namespace SpotifyCompanion
                 await RefreshTokenIfNeeded();
             }
 
-            Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", storage.Get<string>("access_token"));
+            Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _storage.Get<string>("access_token"));
         }
 
         public async Task Run()
         {
-            bool appIsRunning = true;
-            while (appIsRunning)
+            bool isRunning = true;
+            while (isRunning)
             {
                 switch (Console.ReadKey().Key)
                 {
                     case ConsoleKey.Escape:
-                        appIsRunning = false;
+                        isRunning = false;
                         break;
                     case ConsoleKey.F3:
                         Player.AddItemToPlaybackQueue("spotify:track:4iV5W9uYEdYUVa79Axb7Rh");
@@ -76,11 +76,11 @@ namespace SpotifyCompanion
             }
         }
 
-        private async void RefreshToken()
+        private async Task RefreshToken()
         {
             Console.WriteLine("The token is expired. Refreshing...");
 
-            var refrToken = storage.Get<string>("refresh_token");
+            var refrToken = _storage.Get<string>("refresh_token");
             var refreshInfo = await OAuth2.RefreshToken(refrToken);
             Console.WriteLine($"\nToken Refreshed!");
 
@@ -89,22 +89,22 @@ namespace SpotifyCompanion
 
         private void StoreToken(string accessToken)
         {
-            storage.Store("access_token", accessToken);
-            storage.Store<DateTime>("expires_at", DateTime.Now.Add(TimeSpan.FromSeconds(3600)));
-            storage.Persist();
+            _storage.Store("access_token", accessToken);
+            _storage.Store<DateTime>("expires_at", DateTime.Now.Add(TimeSpan.FromSeconds(3600)));
+            _storage.Persist();
         }
 
         private async Task RefreshTokenIfNeeded()
         {
-            var timeWhenTokenExpires = storage.Get<DateTime>("expires_at");
+            var tokenExpirationTime = _storage.Get<DateTime>("expires_at");
 
-            if (DateTime.Compare(DateTime.Now, timeWhenTokenExpires) > 0)
+            if (DateTime.Compare(DateTime.Now, tokenExpirationTime) > 0)
             {
-                RefreshToken();
+                await RefreshToken();
             }
             else
             {
-                Console.WriteLine($"The current token will expire on: {timeWhenTokenExpires}");
+                Console.WriteLine($"The current token will expire on: {tokenExpirationTime}");
             }
         }
 

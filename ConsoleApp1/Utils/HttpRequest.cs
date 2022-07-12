@@ -11,73 +11,73 @@ namespace SpotifyCompanion.Utils.Http
     {
         public static async Task<T> Get<T>(string endpoint)
         {
-            using (HttpResponseMessage Response = await SpotifyClient.Client.GetAsync(new Uri(endpoint)))
+            using (HttpResponseMessage response = await SpotifyClient.Client.GetAsync(new Uri(endpoint)))
             {
-                EnsureSuccessfulRequest(Response);
-                return await Response.Content.ReadAsAsync<T>();
+                EnsureSuccessfulRequest(response);
+                return await response.Content.ReadAsAsync<T>();
             }
         }
 
         public static async void Post(string endpoint)
         {
-            using (HttpResponseMessage Response = await SpotifyClient.Client.PostAsync(endpoint, new StringContent(string.Empty)))
+            using (HttpResponseMessage response = await SpotifyClient.Client.PostAsync(endpoint, new StringContent(string.Empty)))
             {
-                EnsureSuccessfulRequest(Response);
+                EnsureSuccessfulRequest(response);
             }
         }
 
-        public static async Task<T> Post<T>(string endpoint, FormUrlEncodedContent RequestBody)
+        public static async Task<T> Post<T>(string endpoint, FormUrlEncodedContent requestBody)
         {
-            using (HttpResponseMessage Response = await SpotifyClient.Client.PostAsync(endpoint, RequestBody))
+            using (HttpResponseMessage response = await SpotifyClient.Client.PostAsync(endpoint, requestBody))
             {
-                EnsureSuccessfulRequest(Response);
-                return await Response.Content.ReadAsAsync<T>();
+                EnsureSuccessfulRequest(response);
+                return await response.Content.ReadAsAsync<T>();
             }
         }
 
-        public static async Task Put(string endpoint, StringContent RequestBody)
+        public static async Task Put(string endpoint, StringContent requestBody)
         {
-            using (HttpResponseMessage Response = await SpotifyClient.Client.PutAsync(endpoint, RequestBody))
+            using (HttpResponseMessage response = await SpotifyClient.Client.PutAsync(endpoint, requestBody))
             {
-                EnsureSuccessfulRequest(Response);
+                EnsureSuccessfulRequest(response);
             }
         }
 
         public static async Task Put(string endpoint)
         {
-            using (HttpResponseMessage Response = await SpotifyClient.Client.PutAsync(endpoint, new StringContent(string.Empty)))
+            using (HttpResponseMessage response = await SpotifyClient.Client.PutAsync(endpoint, new StringContent(string.Empty)))
             {
-                EnsureSuccessfulRequest(Response);
+                EnsureSuccessfulRequest(response);
             }
         }
 
         public static async Task Delete(string endpoint)
         {
-            using (HttpResponseMessage Response = await SpotifyClient.Client.DeleteAsync(endpoint))
+            using (HttpResponseMessage response = await SpotifyClient.Client.DeleteAsync(endpoint))
             {
-                EnsureSuccessfulRequest(Response);
+                EnsureSuccessfulRequest(response);
             }
         }
 
-        public static async Task Delete(string endpoint, StringContent RequestBody)
+        public static async Task Delete(string endpoint, StringContent requestBody)
         {
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Delete,
                 RequestUri = new Uri(endpoint),
-                Content = RequestBody
+                Content = requestBody
             };
 
-            using (HttpResponseMessage Response = await SpotifyClient.Client.SendAsync(request))
+            using (HttpResponseMessage response = await SpotifyClient.Client.SendAsync(request))
             {
-                EnsureSuccessfulRequest(Response);
+                EnsureSuccessfulRequest(response);
             }
         }
-        private static void EnsureSuccessfulRequest(HttpResponseMessage Response)
+        private static void EnsureSuccessfulRequest(HttpResponseMessage response)
         {
-            if (!Response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                Console.WriteLine($"Error {(int)Response.StatusCode} - {Response.ReasonPhrase}");
+                Console.WriteLine($"Error {(int)response.StatusCode} - {response.ReasonPhrase}");
             }
         }
     }
